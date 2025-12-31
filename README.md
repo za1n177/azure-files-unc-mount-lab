@@ -1,208 +1,122 @@
-🗂️ AZ-104 Lab – Azure Files UNC Mount (SMB Access)
+# Azure Files UNC Mount Lab (AZ-104)
 
-Exam: Microsoft AZ-104 – Azure Administrator
-Focus: Azure Files SMB access using UNC paths, authentication, and PowerShell mapping
+## Overview
 
-🧠 Objective
+This hands-on lab demonstrates how to create and access **Azure File Shares** using **UNC paths over SMB**, including authentication via **storage account keys** and **PowerShell drive mapping**.
 
-Demonstrate how to access an Azure File Share using a UNC path and SMB authentication, as tested in AZ-104 exam questions (e.g. Question 112).
+The lab validates **real AZ-104 exam scenarios** and bridges traditional on-prem file server concepts with Azure cloud storage.
 
-This lab validates:
+---
 
-Correct UNC path format
+## Skills Demonstrated
 
-Authentication method for Azure Files
+- Azure Storage Account configuration  
+- Azure Files (SMB) file share creation  
+- UNC path construction and usage  
+- SMB authentication using storage account keys  
+- PowerShell drive mapping (`net use`)  
+- File Explorer access to Azure Files  
+- Troubleshooting SMB authentication errors (System error 1326)  
+- SMB port 445 requirements  
 
-PowerShell drive mapping behavior
+---
 
-Common errors and how to fix them
+## Architecture / Flow
 
-🧪 Scenario Overview
-
-You have:
-
-One Azure subscription
-
-One Azure Storage Account
-
-One Azure File Share named data
-
-You need to:
-
-Access the file share from Windows
-
-Use the correct UNC path
-
-Authenticate successfully using Storage Account credentials
-
-🛠️ Azure Resources Used
-
-Azure Storage Account (Standard, LRS)
-
+Local Windows Machine
+|
+| SMB (Port 445)
+v
+Azure Storage Account
+|
+v
 Azure File Share
 
-Windows 10 / Windows Server
+yaml
+Copy code
 
-PowerShell
+**Access methods**
+- Windows File Explorer (UNC)
+- PowerShell (`net use`)
 
-📁 Repository Structure
-azure-files-unc-mount-lab/
-│
-├── README.md
-├── screenshots/
-│   ├── azure-files-file-explorer-mount.png
-│   └── azure-files-powershell-mount.png
-│
-├── scripts/
-│   ├── mount-azure-files.ps1
-│   └── unmount-azure-files.ps1
-│
-└── exam-notes/
-    └── question-112.md
+---
 
-🔹 Step 1 – Create Azure File Share
+## Step-by-Step Lab
 
-In the Azure Portal:
+### Step 1 – Create Azure Storage Account
 
-Go to Storage account
+- Create a **Storage Account (GPv2)**
+- Enable **Azure Files**
+- Note the **storage account name**
+- Copy **Access Key 1 or 2**
 
-Navigate to File shares
+---
 
-Create a file share named:
+### Step 2 – Create Azure File Share
 
-data
+- Create a file share named `data`
+- Access tier: Transaction optimized
+- Identity-based access: Not configured
 
+---
 
-✔ This folder must exist before mounting
+### Step 3 – Construct the UNC Path
 
-🔹 Step 2 – Identify the Correct UNC Path
+**Format**
+``` **Example** ``` \\stzainisync111.file.core.windows.net\data ``` 
 
-Azure Files uses the following format:
+--- 
 
-\\<storage-account-name>.file.core.windows.net\<file-share-name>
+## Step 4 – Access via File Explorer 
 
-Example:
-\\stzainisync111.file.core.windows.net\data
+1. Open **File Explorer**
+2. Paste the UNC path
+3. When prompted:
+   - **Username:** `Azure\<storage-account-name>`
+   - **Password:** Storage account access key
 
+--- 
 
-🚫 Common mistakes:
+## Step 5 – PowerShell Drive Mapping ```powershell net use Z: \\stzainisync111.file.core.windows.net\data /user:Azure\stzainisync111 ``` Verify: ```powershell Get-PSDrive ``` --- ## Screenshots ### SMB Access via File Explorer ![Azure Files SMB Access](screenshots/azure-files-smb-access-file-explorer.png) ### PowerShell Drive Mapping ![Azure Files PowerShell Mount](screenshots/azure-files-powershell-mount.png) 
 
-Using blob.core.windows.net
+--- 
 
-Including subscription name
+## AZ-104 Exam Mapping 
 
-Using portal.azure.com
+- Manage Azure Storage Accounts
+- Configure Azure Files
+- Secure storage using UNC paths
+- PowerShell automation with `net use`
+- Troubleshoot SMB connectivity (port 445, error 1326)
 
-🔹 Step 3 – Authenticate Using Correct Credentials
+--- 
 
-Azure Files does NOT use:
+## Common Errors & Fixes 
 
-Local Windows users
+### ❌ System error 1326 **Cause:** Incorrect credential format 
+**Fix:** 
+- Username: `Azure\<storage-account-name>`
+- Password: **Storage account access key**
 
-Azure VM users
+### ❌ Cannot connect to file share 
 
-Entra ID (unless identity-based access is configured)
+**Cause:** SMB port 445 blocked 
 
-✅ Correct Authentication
-Field	Value
-Username	Azure\<storage-account-name>
-Password	Storage Account Access Key
+**Fix:** Allow outbound TCP **445** 
 
-📍 Access key location:
+--- 
 
-Storage Account → Access keys → Key1 or Key2
+## Cleanup (Optional) 
 
-🔹 Step 4 – Mount Using File Explorer (GUI)
+```powershell net use Z: /delete ``` 
+Delete the file share and storage account if no longer needed. 
 
-Open File Explorer
+--- 
 
-Enter the UNC path:
+## Key Takeaways 
 
-\\stzainisync111.file.core.windows.net\data
-
-
-When prompted:
-
-Username: Azure\stzainisync111
-
-Password: Storage account access key
-
-### Azure Files Access via File Explorer (UNC)
-
-![Azure Files accessed using UNC path in File Explorer](./screenshots/azure-files-smb-access-file-explorer.png)
-
-🔹 Step 5 – Mount Using PowerShell (Exam-Relevant)
-
-Run PowerShell as Administrator:
-
-net use Z: \\stzainisync111.file.core.windows.net\data /user:Azure\stzainisync111
-
-
-Enter the storage account access key when prompted.
-
-Verify mapping:
-
-Get-PSDrive
-
-### PowerShell SMB Mount (net use)
-
-![Azure Files mounted using PowerShell](./screenshots/azure-files-powershell-mount.png)
-
-🔹 Step 6 – Common Error & Fix (System Error 1326)
-❌ Error:
-System error 1326
-The user name or password is incorrect
-
-✅ Fix checklist:
-
-Username format must be:
-
-Azure\<storage-account-name>
-
-
-Password must be:
-
-Storage account Access Key
-
-Ensure the file share exists
-
-Remove cached credentials if needed:
-
-net use * /delete
-
-📝 AZ-104 Exam Takeaways (Question 112)
-
-Azure Files UNC path uses:
-
-file.core.windows.net
-
-
-Authentication uses:
-
-Azure\<storage-account-name>
-
-
-Password = Storage account key
-
-Azure Files ≠ Azure Blob
-
-UNC access works over SMB (port 445)
-
-🎯 Skills Demonstrated
-
-Azure Storage Accounts
-
-Azure Files (SMB)
-
-UNC path construction
-
-PowerShell drive mapping
-
-Authentication troubleshooting
-
-AZ-104 exam readiness
-
-🔗 Related Labs
-
-Azure File Sync Constraints Lab
-👉 (Separate repo focused on sync groups & endpoints)
+- Azure Files uses **SMB over port 445**
+- UNC paths follow a strict Azure format
+- Authentication differs from AD-based file servers
+- PowerShell mapping is frequently tested in AZ-104
+- Hands-on troubleshooting improves exam success
