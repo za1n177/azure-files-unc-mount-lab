@@ -127,9 +127,9 @@ Username: Azure\stzainisync111
 
 Password: Storage account access key
 
-📸 Screenshot reference:
+### Azure Files Access via File Explorer (UNC)
 
-screenshots/azure-files-file-explorer-mount.png
+![Azure Files accessed using UNC path in File Explorer](./screenshots/azure-files-smb-access-file-explorer.png)
 
 🔹 Step 5 – Mount Using PowerShell (Exam-Relevant)
 
@@ -144,10 +144,9 @@ Verify mapping:
 
 Get-PSDrive
 
+### PowerShell SMB Mount (net use)
 
-📸 Screenshot reference:
-
-screenshots/azure-files-powershell-mount.png
+![Azure Files mounted using PowerShell](./screenshots/azure-files-powershell-mount.png)
 
 🔹 Step 6 – Common Error & Fix (System Error 1326)
 ❌ Error:
